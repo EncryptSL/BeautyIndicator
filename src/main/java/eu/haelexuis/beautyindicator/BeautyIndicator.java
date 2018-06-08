@@ -16,7 +16,7 @@ public class BeautyIndicator extends JavaPlugin {
         this.getCommand("beautyindicator").setExecutor(new ReloadCommand(this));
 
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b[BeautyIndicator] &aPlugin successfully enabled!"));
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b[BeautyIndicator] &7Spigot page: &aidk"));
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b[BeautyIndicator] &7Spigot page: &ahttps://www.spigotmc.org/resources/.57546/"));
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b[BeautyIndicator] &7Author: &ehaelexuis &a[https://haelexuis.eu]"));
     }
 
