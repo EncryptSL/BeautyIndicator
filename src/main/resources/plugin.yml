@@ -1,0 +1,6 @@
+name: BeautyIndicator
+main: eu.haelexuis.beautyindicator.BeautyIndicator
+version: 1.0
+author: haelexuis
+commands:
+  beautyindicator:

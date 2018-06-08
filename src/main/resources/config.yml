@@ -1,0 +1,19 @@
+# Character in health bar of mob
+heart-character: "❤"
+
+# How many seconds should be health showed after hit
+show-time: 3
+
+# Color of active (red) heart in name
+active-color: "&c"
+
+# Color of inactive (grey) heart in name
+neutral-color: "&7"
+
+# Show entity health bar when entity is hit by itself (for example, when skeleton starts to fire or he drops from MobTrap)
+hit-by-itself: true
+
+# Whole list of mob names: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
+excluded-mobs:
+  #- WITHER_SKELETON
+  #- IRON_GOLEM
