@@ -67,13 +67,13 @@ public class CombatController implements Listener {
                         entityCombat.doUpdate();
                     else {
                         if(entity != null) {
-                            entitiesInCombat.remove(entity);
                             if(!entity.isDead()) {
                                 String customName = entityCombat.getNameToRestore();
                                 if(customName == null)
                                     entity.setCustomNameVisible(false);
                                 entity.setCustomName(customName);
                             }
+                            entitiesInCombat.remove(entity);
                         }
                     }
                 });
@@ -101,7 +101,6 @@ public class CombatController implements Listener {
                     if(livingEntity.getHealth() == livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue())
                         return;
 
-                    addToCombat(livingEntity, livingEntity.getCustomName());
                     StringBuilder hearts = new StringBuilder();
 
                     int newHealth = (int) livingEntity.getHealth() / 2;
@@ -111,6 +110,8 @@ public class CombatController implements Listener {
                         hearts.append(activeColor).append(character);
                     for(int i = maxHealth; i > 0; i--)
                         hearts.append(neutralColor).append(character);
+
+                    addToCombat(livingEntity, livingEntity.getCustomName() == null ? livingEntity.getCustomName() : ChatColor.stripColor(livingEntity.getCustomName()).equals(ChatColor.stripColor(hearts.toString())) ? null : livingEntity.getCustomName());
 
                     entity.setCustomName(ChatColor.translateAlternateColorCodes('&', hearts.toString()));
                     entity.setCustomNameVisible(true);
