@@ -11,24 +11,21 @@ public class BeautyIndicator extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        reload();
+        combatController = new CombatController(this, getConfig());
 
         this.getCommand("beautyindicator").setExecutor(new ReloadCommand(this));
 
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b[BeautyIndicator] &aPlugin successfully enabled!"));
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b[BeautyIndicator] &7Spigot page: &ahttps://www.spigotmc.org/resources/.57546/"));
         Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&b[BeautyIndicator] &7Author: &ehaelexuis &a[https://haelexuis.eu]"));
-    }
-
-    public void reload() {
-        if(combatController != null)
-            combatController.onDisable();
-
-        saveDefaultConfig();
-
-        combatController = new CombatController(this, getConfig());
 
         Bukkit.getPluginManager().registerEvents(combatController, this);
+    }
+
+    public void onReload() {
+        saveDefaultConfig();
+        reloadConfig();
+        combatController.onReload(getConfig());
     }
 
     @Override

@@ -30,6 +30,22 @@ public class CombatController implements Listener {
 
     public CombatController(BeautyIndicator beautyIndicator, FileConfiguration config) {
         this.beautyIndicator = beautyIndicator;
+
+        onLoad(config);
+    }
+
+    public void onDisable() {
+        entitiesInCombat.forEach((entity, entityCombat) -> entity.setCustomName(entityCombat.getNameToRestore()));
+        entitiesInCombat.clear();
+        combatControlling.cancel();
+    }
+
+    public void onReload(FileConfiguration config) {
+        onDisable();
+        onLoad(config);
+    }
+
+    public void onLoad(FileConfiguration config) {
         this.character = config.getString("heart-character");
         this.showTime = config.getInt("show-time");
         this.excludedMobs = config.getStringList("excluded-mobs");
@@ -40,11 +56,6 @@ public class CombatController implements Listener {
         this.hitByItself = config.getBoolean("hit-by-itself");
 
         startControllingCombat();
-    }
-
-    public void onDisable() {
-        entitiesInCombat.forEach((entity, entityCombat) -> entity.setCustomName(entityCombat.getNameToRestore()));
-        combatControlling.cancel();
     }
 
     private void startControllingCombat() {
