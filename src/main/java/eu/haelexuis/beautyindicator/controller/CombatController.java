@@ -2,6 +2,7 @@ package eu.haelexuis.beautyindicator.controller;
 
 import eu.haelexuis.beautyindicator.BeautyIndicator;
 import eu.haelexuis.beautyindicator.model.Combat;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -14,6 +15,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,14 +48,14 @@ public class CombatController implements Listener {
     }
 
     public void onLoad(FileConfiguration config) {
-        this.character = config.getString("heart-character");
-        this.showTime = config.getInt("show-time");
-        this.excludedMobs = config.getStringList("excluded-mobs");
-        this.activeColor = config.getString("active-color");
-        this.neutralColor = config.getString("neutral-color");
-        this.excludedMobs = config.getStringList("excluded-mobs");
-        this.excludedMobs = config.getStringList("excluded-mobs");
-        this.hitByItself = config.getBoolean("hit-by-itself");
+        character = config.getString("heart-character");
+        showTime = config.getInt("show-time");
+        excludedMobs = config.getStringList("excluded-mobs");
+        activeColor = config.getString("active-color");
+        neutralColor = config.getString("neutral-color");
+        excludedMobs = config.getStringList("excluded-mobs");
+        excludedMobs = config.getStringList("excluded-mobs");
+        hitByItself = config.getBoolean("hit-by-itself");
 
         startControllingCombat();
     }
@@ -103,13 +105,18 @@ public class CombatController implements Listener {
 
                     StringBuilder hearts = new StringBuilder();
 
-                    int newHealth = (int) livingEntity.getHealth() / 2;
-                    int maxHealth = (int) livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() / 2 - newHealth;
+                    double multiplier = beautyIndicator.getConfig().getDouble("mob-multipliers." + entity.getType().toString());
+                    if(multiplier == 0)
+                        multiplier = 1;
+
+                    int newHealth = (int) ((int) livingEntity.getHealth() / 2 * multiplier);
+                    int maxHealth = (int) ((int) livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() / 2 * multiplier - newHealth);
 
                     for(int i = newHealth; i > 0; i--)
                         hearts.append(activeColor).append(character);
                     for(int i = maxHealth; i > 0; i--)
                         hearts.append(neutralColor).append(character);
+                    hearts.append(" ");
 
                     addToCombat(livingEntity, livingEntity.getCustomName() == null ? livingEntity.getCustomName() : ChatColor.stripColor(livingEntity.getCustomName()).equals(ChatColor.stripColor(hearts.toString())) ? null : livingEntity.getCustomName());
 

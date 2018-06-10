@@ -13,6 +13,10 @@ neutral-color: "&7"
 # Show entity health bar when entity is hit by itself (for example, when skeleton starts to fire or he drops from MobTrap)
 hit-by-itself: true
 
+# Some powerful mobs could have really long health bar, you can specify a multiplier for them
+mob-multipliers:
+  IRON_GOLEM: 0.25 # Their real health is 75% shorter in display, because it would be too long in game
+
 # Whole list of mob names: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/entity/EntityType.html
 excluded-mobs:
   #- WITHER_SKELETON
