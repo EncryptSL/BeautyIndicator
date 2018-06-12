@@ -2,7 +2,6 @@ package eu.haelexuis.beautyindicator.controller;
 
 import eu.haelexuis.beautyindicator.BeautyIndicator;
 import eu.haelexuis.beautyindicator.model.Combat;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,7 +14,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,10 +23,14 @@ public class CombatController implements Listener {
     private ConcurrentHashMap<LivingEntity, Combat> entitiesInCombat = new ConcurrentHashMap<>();
     private String character;
     private int showTime;
-    private String activeColor;
     private String neutralColor;
     private List<String> excludedMobs;
     private boolean hitByItself;
+    private boolean activeColorMultiple;
+    private String firstActiveColor;
+    private String secondActiveColor;
+    private String thirdActiveColor;
+
 
     public CombatController(BeautyIndicator beautyIndicator, FileConfiguration config) {
         this.beautyIndicator = beautyIndicator;
@@ -51,11 +53,17 @@ public class CombatController implements Listener {
         character = config.getString("heart-character");
         showTime = config.getInt("show-time");
         excludedMobs = config.getStringList("excluded-mobs");
-        activeColor = config.getString("active-color");
+        thirdActiveColor = config.getString("active-color");
         neutralColor = config.getString("neutral-color");
         excludedMobs = config.getStringList("excluded-mobs");
         excludedMobs = config.getStringList("excluded-mobs");
         hitByItself = config.getBoolean("hit-by-itself");
+        activeColorMultiple = config.getBoolean("active-color-multiple.enabled");
+        if(activeColorMultiple) {
+            firstActiveColor = config.getString("active-color-multiple.one-third");
+            secondActiveColor = config.getString("active-color-multiple.two-thirds");
+            thirdActiveColor = config.getString("active-color-multiple.three-thirds");
+        }
 
         startControllingCombat();
     }
@@ -109,12 +117,22 @@ public class CombatController implements Listener {
                     if(multiplier == 0)
                         multiplier = 1;
 
+                    int maxHealth = (int) ((int) livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() / 2 * multiplier);
                     int newHealth = (int) ((int) livingEntity.getHealth() / 2 * multiplier);
-                    int maxHealth = (int) ((int) livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() / 2 * multiplier - newHealth);
+                    int leftHealth = maxHealth - newHealth;
+
+                    String newColor = thirdActiveColor;
+
+                    if(activeColorMultiple) {
+                        if(newHealth <= maxHealth * 0.33)
+                            newColor = firstActiveColor;
+                        else if(newHealth <= maxHealth * 0.66)
+                            newColor = secondActiveColor;
+                    }
 
                     for(int i = newHealth; i > 0; i--)
-                        hearts.append(activeColor).append(character);
-                    for(int i = maxHealth; i > 0; i--)
+                        hearts.append(newColor).append(character);
+                    for(int i = leftHealth; i > 0; i--)
                         hearts.append(neutralColor).append(character);
                     hearts.append(" ");
 
