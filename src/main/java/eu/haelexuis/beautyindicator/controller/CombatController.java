@@ -2,6 +2,7 @@ package eu.haelexuis.beautyindicator.controller;
 
 import eu.haelexuis.beautyindicator.BeautyIndicator;
 import eu.haelexuis.beautyindicator.model.Combat;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -76,15 +78,7 @@ public class CombatController implements Listener {
                     if(entityCombat.getSeconds() > 0)
                         entityCombat.doUpdate();
                     else {
-                        if(entity != null) {
-                            if(!entity.isDead()) {
-                                String customName = entityCombat.getNameToRestore();
-                                if(customName == null)
-                                    entity.setCustomNameVisible(false);
-                                entity.setCustomName(customName);
-                            }
-                            entitiesInCombat.remove(entity);
-                        }
+                        removeFromCombat(entity);
                     }
                 });
             }
@@ -92,10 +86,22 @@ public class CombatController implements Listener {
     }
 
     private void addToCombat(LivingEntity entity, String entityName) {
+        if(entity.isDead())
+            return;
         if(!entitiesInCombat.containsKey(entity))
             entitiesInCombat.put(entity, new Combat(entityName, showTime));
         else
             entitiesInCombat.get(entity).resetSeconds();
+    }
+
+    private void removeFromCombat(LivingEntity entity) {
+        if(entity != null && entitiesInCombat.containsKey(entity)) {
+            String customName = entitiesInCombat.get(entity).getNameToRestore();
+            entity.setCustomName(customName);
+            if(customName == null)
+                entity.setCustomNameVisible(false);
+            entitiesInCombat.remove(entity);
+        }
     }
 
     private void onHit(Entity entity) {
@@ -104,10 +110,15 @@ public class CombatController implements Listener {
         if(entity instanceof LivingEntity) {
             if(excludedMobs.contains(entity.getType().toString()))
                 return;
+
+            LivingEntity livingEntity = (LivingEntity) entity;
+            if(livingEntity.getHealth() <= 0 || livingEntity.isDead()) {
+                removeFromCombat(livingEntity);
+                return;
+            }
+
             new BukkitRunnable() {
                 public void run() {
-                    LivingEntity livingEntity = (LivingEntity) entity;
-
                     if(livingEntity.getHealth() == livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue())
                         return;
 
@@ -155,5 +166,34 @@ public class CombatController implements Listener {
     public void onEntityHit(EntityDamageEvent e) {
         if(hitByItself)
             onHit(e.getEntity());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityHitByEntityCheck(EntityDamageByEntityEvent e) {
+        if(!hitByItself) {
+            LivingEntity livingEntity = (LivingEntity) e.getEntity();
+            if(livingEntity.getHealth() <= 0)
+                removeFromCombat(livingEntity);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityHitCheck(EntityDamageEvent e) {
+        if(hitByItself) {
+            LivingEntity livingEntity = (LivingEntity) e.getEntity();
+            if(livingEntity.getHealth() <= 0)
+                removeFromCombat(livingEntity);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDeath(EntityDeathEvent e) {
+        removeFromCombat(e.getEntity());
+    }
+
+    @EventHandler
+    public void onEntityDeathe(EntityDeathEvent e) {
+        //Entity name is almost always the heart character, if someone know how to fix please create a pull request, its because of death messages.. I tried almost everything
+        //Bukkit.broadcastMessage("Entity name:" + e.getEntity().getName() + " combat size:" + entitiesInCombat.size());
     }
 }
